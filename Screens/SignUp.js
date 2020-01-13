@@ -1,23 +1,57 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput } from 'react-native';
-import { Container, Header, Content, Form, Item, Input, Label } from 'native-base';
-import * as Font from 'expo-font';
-import { Ionicons, Feather } from '@expo/vector-icons';
-import { AppLoading } from 'expo';
-import { ScrollView } from 'react-native-gesture-handler';
-var FloatingLabel = require('react-native-floating-labels');
-
+import { StyleSheet, Text, View, Image, TouchableOpacity, Alert,ScrollView } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+var FloatingLabel = require('../Compoent/FloatingInput');
+import * as firebase from 'firebase';
 export default class Login extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            Visible: false
+            Visible: false,
+            email: '',
+            username: '',
+            password: '',
         };
     }
 
     async componentDidMount() {
 
+
+    }
+
+    SignUp = () => {
+        // setLoading(true)
+        if (this.state.email != '' && this.state.username != '' && this.state.password != '') {
+            //SignUp with email and password
+            firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then((response) => {
+                // setLoading(false)
+                var userId = firebase.auth().currentUser.uid
+                this.props.navigation.navigate("Home")
+
+                //Update Database
+                firebase.database().ref('users/' + userId).set({
+                    Name: this.state.username,
+                    Email: this.state.email,
+                    Uid: userId,
+                });
+
+                //Update Profile
+                firebase.auth().currentUser.updateProfile({
+                    displayName: this.state.username,
+                }).then(() => {
+                }).catch(function (error) {
+                    Alert.alert(error.message);
+                });
+
+            }).catch(function (error) {
+                // setLoading(false)
+                Alert.alert(error.message);
+            });
+        } else {
+            setLoading(false)
+            Alert.alert("Fill Form Properly!");
+        }
     }
 
     render() {
@@ -42,6 +76,7 @@ export default class Login extends React.Component {
                             style={styles.formInput}
                             // value='john@email.com'
                             onBlur={this.onBlur}
+                            onChangeText={(username) => this.setState({ username })}
                         >Name</FloatingLabel>
 
                         <View style={{ marginBottom: 20, borderWidth: 0.5, borderColor: '#c8c8c8', height: 60, marginTop: 30 }} />
@@ -51,7 +86,8 @@ export default class Login extends React.Component {
                             style={styles.formInput}
                             // value='john@email.com'
                             onBlur={this.onBlur}
-                        >Username</FloatingLabel>
+                            onChangeText={(email) => this.setState({ email })}
+                        >Email</FloatingLabel>
 
                         <View style={{ marginBottom: 20, borderWidth: 0.5, borderColor: '#c8c8c8', height: 60, marginTop: 30 }} />
                         <View style={{ flexDirection: 'row' }}>
@@ -62,6 +98,7 @@ export default class Login extends React.Component {
                                 // value='john@email.com'
                                 onBlur={this.onBlur}
                                 password={this.state.Visible ? false : true}
+                                onChangeText={(password) => this.setState({ password })}
                             >Password
                         </FloatingLabel>
                             <TouchableOpacity style={{ marginTop: -60, marginLeft: -35 }} onPress={() => this.setState({ Visible: !this.state.Visible })}>
@@ -82,7 +119,7 @@ export default class Login extends React.Component {
                             </TouchableOpacity>
                         </Item> */}
 
-                        <TouchableOpacity style={styles.Button}>
+                        <TouchableOpacity onPress={this.SignUp.bind(this)} style={styles.Button}>
                             <Text style={{ color: '#fff', fontWeight: '700' }}>Sign up</Text>
                         </TouchableOpacity>
 

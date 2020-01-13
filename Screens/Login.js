@@ -1,16 +1,17 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput } from 'react-native';
-import { Item } from 'native-base';
+import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from 'react-native';
 
-import { Ionicons, Feather } from '@expo/vector-icons';
-var FloatingLabel = require('react-native-floating-labels');
-
+import { Feather } from '@expo/vector-icons';
+var FloatingLabel = require('../Compoent/FloatingInput');
+import * as firebase from 'firebase';
 export default class Login extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            Visible: false
+            Visible: false,
+            email: '',
+            password: ''
         };
     }
 
@@ -21,6 +22,24 @@ export default class Login extends React.Component {
     onBlur() {
         console.log('#####: onBlur');
     }
+
+    SignIn = async () => {
+        if (this.state.email != '' && this.state.password != '') {
+
+            //SingIn with email and pass.
+            firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password).then((response) => {
+                // setLoading(false)
+
+                //Navigate.
+                this.props.navigation.navigate("Home")
+            }).catch(function (error) {
+                Alert.alert(error.message);
+            });
+        } else {
+            Alert.alert("Fill Form Properly!");
+        }
+    }
+
 
     render() {
 
@@ -43,7 +62,8 @@ export default class Login extends React.Component {
                     style={styles.formInput}
                     // value='john@email.com'
                     onBlur={this.onBlur}
-                >Username</FloatingLabel>
+                    onChangeText={(email) => this.setState({ email })}
+                >Email</FloatingLabel>
 
                 <View style={{ marginBottom: 20, borderWidth: 0.5, borderColor: '#c8c8c8', height: 60,marginTop:30 }} />
                 <View style={{ flexDirection: 'row' }}>
@@ -54,6 +74,7 @@ export default class Login extends React.Component {
                         // value='john@email.com'
                         onBlur={this.onBlur}
                         password={this.state.Visible ? false : true}
+                        onChangeText={(password) => this.setState({ password })}
                     >Password
                 </FloatingLabel>
                     <TouchableOpacity style={{marginTop:-60,marginLeft:-35}} onPress={() => this.setState({ Visible: !this.state.Visible })}>
@@ -76,7 +97,7 @@ export default class Login extends React.Component {
                     </TouchableOpacity>
                 </Item> */}
 
-                <TouchableOpacity style={styles.Button}>
+                <TouchableOpacity onPress={this.SignIn.bind(this)} style={styles.Button}>
                     <Text style={{ color: '#fff', fontWeight: '700' }}>Log in</Text>
                 </TouchableOpacity>
 

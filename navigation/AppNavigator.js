@@ -4,7 +4,7 @@ import { createStackNavigator } from 'react-navigation-stack';
 
 import Login from '../Screens/Login'
 import SignUp from '../Screens/SignUp'
-
+import Home from '../Screens/Home'
 
 //Before Login Navigator
 const AuthStack = createStackNavigator({
@@ -16,6 +16,12 @@ const AuthStack = createStackNavigator({
   },
   SignUp: {
     screen: SignUp,
+    navigationOptions: {
+      headerShown: false
+    }
+  },
+  Home: {
+    screen: Home,
     navigationOptions: {
       headerShown: false
     }
